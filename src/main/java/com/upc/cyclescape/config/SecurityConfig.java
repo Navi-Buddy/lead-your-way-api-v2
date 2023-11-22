@@ -28,8 +28,8 @@
                       .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
                       .permitAll()
                             .requestMatchers("/api/cyclescape/v1/users",
-                                    "/api/cyclescape/v1/rents","/api/cyclescape/v1/cards","/api/leadyourway/v1/bicycles").authenticated()
-                            .anyRequest().authenticated())
+                                    "/api/cyclescape/v1/rents","/api/cyclescape/v1/cards","/api/leadyourway/v1/bicycles").permitAll()
+                            .anyRequest().permitAll())
                     .csrf(csrf -> csrf.disable())
                     .sessionManagement(session -> session
                             // cuando se establece en STATELESS, significa que no se creará ni
