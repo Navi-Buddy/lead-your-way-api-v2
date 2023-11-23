@@ -7,8 +7,12 @@ import java.util.List;
 
 public interface RentService {
     public abstract Rent create(RentDto rent);
+
     public abstract Rent getById(Long rent_id);
+
     public abstract void delete(Long rent_id);
 
     public abstract List<Rent> getByBicycleId(Long bicycle_id);
+
+    public abstract List<Rent> getByBicycleUserId(Long bicycle_user_id);
 }

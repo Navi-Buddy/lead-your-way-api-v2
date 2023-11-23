@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface RentRepository extends JpaRepository<Rent, Long> {
     List<Rent> findByBicycleId(Long bicycle_id);
+
+    List<Rent> findByBicycleUserId(Long bicycle_user_id);
 }

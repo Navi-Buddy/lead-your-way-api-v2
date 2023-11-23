@@ -32,8 +32,7 @@ public class RentServiceImpl implements RentService {
             BicycleRepository bicycleRepository,
             CardRepository cardRepository,
             AvailabilityService availabilityService,
-            ModelMapper modelMapper
-    ) {
+            ModelMapper modelMapper) {
         this.rentRepository = rentRepository;
         this.userRepository = userRepository;
         this.bicycleRepository = bicycleRepository;
@@ -41,7 +40,6 @@ public class RentServiceImpl implements RentService {
         this.availabilityService = availabilityService;
         this.modelMapper = modelMapper;
     }
-
 
     @Override
     public Rent create(RentDto rentDto) {
@@ -77,6 +75,12 @@ public class RentServiceImpl implements RentService {
         return rentRepository.findByBicycleId(bicycle_id);
     }
 
+    @Override
+    public List<Rent> getByBicycleUserId(Long bicycle_user_id) {
+        userExists(bicycle_user_id);
+        return rentRepository.findByBicycleUserId(bicycle_user_id);
+    }
+
     private void userExists(Long user_id) {
         if (!userRepository.existsById(user_id)) {
             throw new ValidationException("User with id " + user_id + " does not exist");
@@ -105,38 +109,47 @@ public class RentServiceImpl implements RentService {
             throw new ValidationException("Card with id " + rent.getCardId() + " does not have enough money");
         }
         cardRepository.findById(rent.getCardId()).orElse(null).setCardAmount(
-                cardRepository.findById(rent.getCardId()).orElse(null).getCardAmount() - rent.getRentPrice()
-        );
+                cardRepository.findById(rent.getCardId()).orElse(null).getCardAmount() - rent.getRentPrice());
         cardRepository.save(Objects.requireNonNull(cardRepository.findById(rent.getCardId()).orElse(null)));
         cardRepository.findById(cardLenderId).orElse(null).setCardAmount(
-                cardRepository.findById(cardLenderId).orElse(null).getCardAmount() + rent.getRentPrice()
-        );
+                cardRepository.findById(cardLenderId).orElse(null).getCardAmount() + rent.getRentPrice());
         cardRepository.save(Objects.requireNonNull(cardRepository.findById(cardLenderId).orElse(null)));
     }
 
     private void bicycleAvailable(Rent rent, LocalDate rent_start_date, LocalDate rent_end_date) {
-        List<Availability> availabilityList = availabilityService.getByBicycleIdAndAvailabilityType(rent.getBicycle().getId(), false);
+        List<Availability> availabilityList = availabilityService
+                .getByBicycleIdAndAvailabilityType(rent.getBicycle().getId(), false);
 
         for (Availability availability : availabilityList) {
-            if (availability.getAvailabilityEndDate().isBefore(rent_start_date) || availability.getAvailabilityStartDate().isAfter(rent_end_date)) {
+            if (availability.getAvailabilityEndDate().isBefore(rent_start_date)
+                    || availability.getAvailabilityStartDate().isAfter(rent_end_date)) {
                 continue;
             }
 
-            if (availability.getAvailabilityStartDate().isBefore(rent_start_date) && availability.getAvailabilityEndDate().isAfter(rent_end_date)) {
-                throw new ValidationException("The bicycle with id " + rent.getBicycle().getId() + " is not available for the requested rental period. It is already rented out.");
+            if (availability.getAvailabilityStartDate().isBefore(rent_start_date)
+                    && availability.getAvailabilityEndDate().isAfter(rent_end_date)) {
+                throw new ValidationException("The bicycle with id " + rent.getBicycle().getId()
+                        + " is not available for the requested rental period. It is already rented out.");
             }
 
-            if (availability.getAvailabilityStartDate().isBefore(rent_start_date) && availability.getAvailabilityEndDate().isBefore(rent_end_date)) {
-                throw new ValidationException("Bicycle with id " + rent.getBicycle().getId() + " is not available for the requested rental period.");
+            if (availability.getAvailabilityStartDate().isBefore(rent_start_date)
+                    && availability.getAvailabilityEndDate().isBefore(rent_end_date)) {
+                throw new ValidationException("Bicycle with id " + rent.getBicycle().getId()
+                        + " is not available for the requested rental period.");
             }
 
-            if (availability.getAvailabilityStartDate().isAfter(rent_start_date) && availability.getAvailabilityEndDate().isAfter(rent_end_date)) {
-                throw new ValidationException("Bicycle with id " + rent.getBicycle().getId() + " is not available for the requested rental period.");
+            if (availability.getAvailabilityStartDate().isAfter(rent_start_date)
+                    && availability.getAvailabilityEndDate().isAfter(rent_end_date)) {
+                throw new ValidationException("Bicycle with id " + rent.getBicycle().getId()
+                        + " is not available for the requested rental period.");
             }
 
-            if (availability.getAvailabilityStartDate().equals(rent_start_date) || availability.getAvailabilityEndDate().equals(rent_start_date) ||
-                    availability.getAvailabilityStartDate().equals(rent_end_date) || availability.getAvailabilityEndDate().equals(rent_end_date)) {
-                throw new ValidationException("Bicycle with id " + rent.getBicycle().getId() + " is not available for the requested rental period.");
+            if (availability.getAvailabilityStartDate().equals(rent_start_date)
+                    || availability.getAvailabilityEndDate().equals(rent_start_date) ||
+                    availability.getAvailabilityStartDate().equals(rent_end_date)
+                    || availability.getAvailabilityEndDate().equals(rent_end_date)) {
+                throw new ValidationException("Bicycle with id " + rent.getBicycle().getId()
+                        + " is not available for the requested rental period.");
             }
         }
 
@@ -147,7 +160,7 @@ public class RentServiceImpl implements RentService {
         availabilityService.create(availability);
     }
 
-    private void validateData(RentDto rent){
+    private void validateData(RentDto rent) {
         if (rent.getBicycleId() == null) {
             throw new ValidationException("Bicycle is required");
         }
@@ -170,4 +183,5 @@ public class RentServiceImpl implements RentService {
             throw new ValidationException("Rent start_date must be after today");
         }
     }
+
 }

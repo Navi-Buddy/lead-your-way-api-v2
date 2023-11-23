@@ -13,19 +13,19 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="rents")
+@Table(name = "rents")
 public class Rent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="rent_start_date", nullable = false)
+    @Column(name = "rent_start_date", nullable = false)
     private LocalDate rentStartDate;
 
-    @Column(name="rent_end_date", nullable = false)
+    @Column(name = "rent_end_date", nullable = false)
     private LocalDate rentEndDate;
 
-    @Column(name="rent_price", nullable = false)
+    @Column(name = "rent_price", nullable = false)
     private Double rentPrice;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -35,4 +35,8 @@ public class Rent {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "card_id", referencedColumnName = "id")
     private Card card;
+
+    public Bicycle getBicycle() {
+        return this.bicycle;
+    }
 }

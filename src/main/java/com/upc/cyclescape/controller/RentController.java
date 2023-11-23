@@ -1,6 +1,8 @@
 package com.upc.cyclescape.controller;
 
+import com.upc.cyclescape.dto.BicycleDto;
 import com.upc.cyclescape.dto.RentDto;
+import com.upc.cyclescape.model.Bicycle;
 import com.upc.cyclescape.model.Rent;
 import com.upc.cyclescape.service.RentService;
 import org.springframework.http.HttpStatus;
@@ -9,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/cyclescape/v1/rents")
@@ -35,13 +39,30 @@ public class RentController {
         return new ResponseEntity<List<Rent>>(rentService.getByBicycleId(bicycleId), HttpStatus.OK);
     }
 
+    // URL:
+    // http://localhost:8080/api/cyclescape/v1/rents/bicycle/user/{bicycleUserId}
+    // Method: GET
+    @Transactional(readOnly = true)
+    @GetMapping("/bicycle/user/{bicycleUserId}")
+    public ResponseEntity<List<Bicycle>> getRentByBicycleUserId(
+            @PathVariable(name = "bicycleUserId") Long bicycleUserId) {
+        List<Rent> rentList = rentService.getByBicycleUserId(bicycleUserId);
+
+        List<Bicycle> bicycleList = rentList
+                .stream()
+                .map(rent -> rent.getBicycle())
+                .distinct()
+                .collect(Collectors.toList());
+        return new ResponseEntity<List<Bicycle>>(bicycleList, HttpStatus.OK);
+    }
+
     // URL: http://localhost:8080/api/cyclescape/v1/rents
     // Method: POST
     @Transactional
     @PostMapping
     public ResponseEntity<Rent> createRent(@RequestBody RentDto rentDto) {
-        //modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
-        //Rent rent = modelMapper.map(rentDto, Rent.class);
+        // modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+        // Rent rent = modelMapper.map(rentDto, Rent.class);
         return new ResponseEntity<Rent>(rentService.create(rentDto), HttpStatus.CREATED);
     }
 
